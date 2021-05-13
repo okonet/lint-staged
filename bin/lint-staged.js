@@ -6,6 +6,15 @@ const fs = require('fs')
 
 // Force colors for packages that depend on https://www.npmjs.com/package/supports-color
 const { supportsColor } = require('chalk')
+const cmdline = require('commander')
+const debugLib = require('debug')
+const debug = debugLib('lint-staged:bin')
+
+const lintStaged = require('../lib')
+const { version } = require('../package.json')
+const { CONFIG_STDIN_ERROR } = require('../lib/messages')
+
+// Force colors for packages that depend on https://www.npmjs.com/package/supports-color
 if (supportsColor && supportsColor.level) {
   process.env.FORCE_COLOR = supportsColor.level.toString()
 }
@@ -13,24 +22,8 @@ if (supportsColor && supportsColor.level) {
 // Do not terminate main Listr process on SIGINT
 process.on('SIGINT', () => {})
 
-const pkg = require('../package.json')
-require('please-upgrade-node')(
-  Object.assign({}, pkg, {
-    engines: {
-      node: '>=12.13.0', // First LTS release of 'Erbium'
-    },
-  })
-)
-
-const cmdline = require('commander')
-const debugLib = require('debug')
-const lintStaged = require('../lib')
-const { CONFIG_STDIN_ERROR } = require('../lib/messages')
-
-const debug = debugLib('lint-staged:bin')
-
 cmdline
-  .version(pkg.version)
+  .version(version)
   .option('--allow-empty', 'allow empty commits when tasks revert all staged changes', false)
   .option('-c, --config [path]', 'path to configuration file, or - to read from stdin')
   .option('-d, --debug', 'print additional debug information', false)
@@ -42,7 +35,8 @@ cmdline
   )
   .option('-q, --quiet', 'disable lint-staged’s own console output', false)
   .option('-r, --relative', 'pass relative filepaths to tasks', false)
-  .option('-x, --shell', 'skip parsing of tasks for better shell support', false)
+  .option('-x, --shell', 'Unsafely skip parsing and run tasks in a real shell', false)
+  .option('--unsafe-shell-disable-warnings', 'Unsafely enable shell and disable warning', false)
   .option(
     '-v, --verbose',
     'show task output even when tasks succeed; by default only failed output is shown',
@@ -50,11 +44,13 @@ cmdline
   )
   .parse(process.argv)
 
-if (cmdline.debug) {
+const cmdlineOptions = cmdline.opts()
+
+if (cmdlineOptions.debug) {
   debugLib.enable('lint-staged*')
 }
 
-debug('Running `lint-staged@%s`', pkg.version)
+debug('Running `lint-staged@%s`', version)
 
 /**
  * Get the maximum length of a command-line argument string based on current platform
@@ -74,8 +70,6 @@ const getMaxArgLength = () => {
   }
 }
 
-const cmdlineOptions = cmdline.opts()
-
 const options = {
   allowEmpty: !!cmdlineOptions.allowEmpty,
   concurrent: JSON.parse(cmdlineOptions.concurrent),
@@ -86,6 +80,7 @@ const options = {
   quiet: !!cmdlineOptions.quiet,
   relative: !!cmdlineOptions.relative,
   shell: !!cmdlineOptions.shell,
+  unsafeShellDisableWarnings: !!cmdlineOptions.unsafeShellDisableWarnings,
   verbose: !!cmdlineOptions.verbose,
 }
 

@@ -71,8 +71,8 @@ Options:
                                      tasks serially (default: true)
   -q, --quiet                        disable lint-staged’s own console output (default: false)
   -r, --relative                     pass relative filepaths to tasks (default: false)
-  -x, --shell                        skip parsing of tasks for better shell support (default:
-                                     false)
+  -x, --shell                        Unsafely skip parsing and run tasks in a real shell
+                                     (default: false)
   -v, --verbose                      show task output even when tasks succeed; by default only
                                      failed output is shown (default: false)
   -h, --help                         display help for command
@@ -90,7 +90,7 @@ Options:
 - **`--no-stash`**: By default a backup stash will be created before running the tasks, and all task modifications will be reverted in case of an error. This option will disable creating the stash, and instead leave all modifications in the index when aborting the commit.
 - **`--quiet`**: Supress all CLI output, except from tasks.
 - **`--relative`**: Pass filepaths relative to `process.cwd()` (where `lint-staged` runs) to tasks. Default is `false`.
-- **`--shell`**: By default linter commands will be parsed for speed and security. This has the side-effect that regular shell scripts might not work as expected. You can skip parsing of commands with this option.
+- **`--shell`**: By default linter commands will be parsed for speed and security. This has the side-effect that regular shell scripts might not work as expected. You can skip parsing of commands with this option. **Using this option is not recommended since it can lead to issues like cross-platform errors, or even command injection!**
 - **`--verbose`**: Show task output even when tasks succeed. By default only failed output is shown.
 
 ## Configuration
@@ -251,7 +251,7 @@ module.exports = {
   <summary>Click to expand</summary>
 
 ```js
-// lint-staged.config.js
+// .lintstagedrc.js
 module.exports = {
   '**/*.ts?(x)': () => 'tsc -p tsconfig.json --noEmit',
 }
@@ -265,7 +265,7 @@ module.exports = {
   <summary>Click to expand</summary>
 
 ```js
-// .lintstagedrc.js
+// lint-staged.config.js
 module.exports = {
   '**/*.js?(x)': (filenames) =>
     filenames.length > 10 ? 'eslint .' : `eslint ${filenames.join(' ')}`,
@@ -334,6 +334,28 @@ module.exports = {
     const relativePaths = absolutePaths.map((file) => path.relative(cwd, file))
     return `ng lint myProjectName --files ${relativePaths.join(' ')}`
   },
+}
+```
+
+</details>
+
+## About the shell option
+
+By default lint-staged runs the configured task using [execa](https://github.com/sindresorhus/execa#shell), which handles parsing and escaping of the command and its arguments. Lint-staged also supports using execa's `shell` option via the `--shell` flag. This skips parsing and runs the command directly in a shell, `/bin/sh` or `cmd.exe` depending on the current platform.
+
+**Using the shell option is not advised because it's slower and insecure, and might lead to problems when running on multiple platforms!**
+
+When using the `--shell` option, lint-staged will try to escape filenames before passing them to the shell (currently only on Unix shells). Please note that when using function configurations, you have to escape them yourself! We recommend you use the default `escape` method:
+
+<details>
+  <summary>Click to expand</summary>
+
+```js
+// .lintstagedrc.js
+const { escape } = require('lint-staged/utils')
+
+module.exports = {
+  '**/*.js?(x)': (filenames) => `eslint ${filenames.map(escape).join(' ')}`,
 }
 ```
 
@@ -553,6 +575,30 @@ See more on [this blog post](https://medium.com/@tomchentw/imagemin-lint-staged-
 ```
 
 </details>
+
+## Utility functions
+
+_Lint-staged_ offers certain utility functions to make it easier to integrate into your project:
+
+### `escape`
+
+A method to escape a command line argument (typically a filename) for safer usage. **This should always be used in functional tasks when the `--shell` option is used!**.
+
+<details>
+  <summary>Click to expand</summary>
+
+```js
+const { escape } = require('lint-staged/utils')
+const filename = '/a directory with spaces!/file.js'
+console.log(escape(filename)) // '\/a\\ directory\\ with\\ spaces\!\/file\.js'
+```
+
+</details>
+
+#### Notes:
+
+- Spaces are double-escaped with `\\`. This is because [execa](https://github.com/sindresorhus/execa) has special handling for splitting from spaces.
+- **Does not currently work on Windows (`process.platform === 'win32'`)!** Caling this method on Windows will return the same unescaped filename, so it does not prevent any security issues. If you want to help make it work on Windows, please let us know!
 
 ## Frequently Asked Questions
 

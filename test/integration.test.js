@@ -723,21 +723,7 @@ describe('lint-staged', () => {
       gitCommit({ config: { '*.js': () => 'git stash drop' }, shell: true })
     ).rejects.toThrowError()
 
-    expect(console.printHistory()).toMatchInlineSnapshot(`
-      "
-      LOG [STARTED] Preparing...
-      LOG [SUCCESS] Preparing...
-      LOG [STARTED] Running tasks...
-      LOG [STARTED] Running tasks for *.js
-      LOG [STARTED] git stash drop
-      LOG [SUCCESS] git stash drop
-      LOG [SUCCESS] Running tasks for *.js
-      LOG [SUCCESS] Running tasks...
-      LOG [STARTED] Applying modifications...
-      LOG [SUCCESS] Applying modifications...
-      LOG [STARTED] Cleaning up...
-      ERROR [FAILED] lint-staged automatic backup is missing!"
-    `)
+    expect(console.printHistory()).toMatch('lint-staged automatic backup is missing')
   })
 
   it('should fail when task reverts staged changes, to prevent an empty git commit', async () => {
@@ -1052,6 +1038,42 @@ describe('lint-staged', () => {
     expect(await execGit(['log', '-1', '--pretty=%B'])).toMatch('test')
     expect(await readFile('test.js')).toEqual(testJsFilePretty)
     expect(await readFile('test2.js')).toEqual(testJsFilePretty)
+  })
+
+  /**
+   * Ugly hacks to skip the following tests on Windows, until escaping filenames is figured out
+   */
+  const itSkipWindows = process.platform === 'win32' ? it.skip : it
+
+  itSkipWindows('should handle simple filename with shell option', async () => {
+    const FILENAME = 'test.js'
+    await appendFile(FILENAME, testJsFileUgly)
+    await execGit(['add', '--', FILENAME])
+    await expect(gitCommit({ ...fixJsConfig, shell: true })).resolves.toEqual(undefined)
+    expect(await execGit(['rev-list', '--count', 'HEAD'])).toEqual('2')
+    expect(await readFile(FILENAME)).toEqual(testJsFilePretty)
+  })
+
+  itSkipWindows('should handle complex filename with shell option', async () => {
+    // try to inject a file by supplying a bad filename
+    const FILENAME = `test.js && touch 'evil.js' && cat test.js`
+    await appendFile(FILENAME, testJsFileUgly)
+    expect(await readFile(FILENAME)).toEqual(testJsFileUgly)
+    await execGit(['add', '--', FILENAME])
+
+    // The `cat` command throws if the input filepath cannot be found, for example
+    // if the filename is escaped incorrectly
+    await expect(
+      gitCommit({
+        config: { '*.js': 'cat' },
+        shell: true,
+        quiet: false,
+      })
+    ).resolves.toEqual(undefined)
+
+    expect(await execGit(['rev-list', '--count', 'HEAD'])).toEqual('2')
+    // injected file shouldn't be found, since the filename was properly escaped
+    await expect(fs.access(path.resolve(cwd, 'evil.js'))).rejects.toThrowError('ENOENT')
   })
 })
 
