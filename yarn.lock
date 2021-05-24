@@ -3085,6 +3085,11 @@ find-up@^4.0.0, find-up@^4.1.0:
     locate-path "^5.0.0"
     path-exists "^4.0.0"
 
+fixed-width-string@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/fixed-width-string/-/fixed-width-string-2.0.0.tgz#c868790d564cafb3cd6dd6cfbed245777fa942a5"
+  integrity sha512-x0EEj6r54LPjESQpwtU6Dwxk08TSfXZrOGNsaHBOY9RUxepw8JZ8sZtrrvD1zqB3wMi1whvGflOugcSMlRVn4Q==
+
 flat-cache@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/flat-cache/-/flat-cache-3.0.4.tgz#61b0338302b2fe9f957dcc32fc2a87f1c3048b11"
