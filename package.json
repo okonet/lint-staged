@@ -27,7 +27,6 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@nickkaramoff/log-symbols": "^4.1.1",
     "cli-truncate": "^2.1.0",
     "colorette": "^1.2.2",
     "commander": "^7.2.0",
