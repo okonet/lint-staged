@@ -27,21 +27,22 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "chalk": "^4.1.1",
     "cli-truncate": "^2.1.0",
+    "colorette": "^1.2.2",
     "commander": "^7.2.0",
-    "cosmiconfig": "^7.0.0",
     "debug": "^4.3.1",
     "dedent": "^0.7.0",
     "enquirer": "^2.3.6",
     "execa": "^5.0.0",
-    "listr2": "^3.8.2",
-    "log-symbols": "^4.1.0",
+    "js-yaml": "^4.1.0",
+    "lilconfig": "^2.0.2",
+    "listr2": "^3.9.0",
     "micromatch": "^4.0.4",
     "normalize-path": "^3.0.0",
     "please-upgrade-node": "^3.2.0",
     "string-argv": "0.3.1",
-    "stringify-object": "^3.3.0"
+    "stringify-object": "^3.3.0",
+    "supports-color": "^9.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.0",

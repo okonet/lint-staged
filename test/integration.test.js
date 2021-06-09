@@ -4,7 +4,7 @@ import ansiSerializer from 'jest-snapshot-serializer-ansi'
 import normalize from 'normalize-path'
 import path from 'path'
 
-jest.unmock('cosmiconfig')
+jest.unmock('lilconfig')
 jest.unmock('execa')
 
 import execGitBase from '../lib/execGit'
@@ -779,7 +779,7 @@ describe('lint-staged', () => {
       LOG [SUCCESS] Reverting to original state because of errors...
       LOG [STARTED] Cleaning up...
       LOG [SUCCESS] Cleaning up...
-      WARN 
+      WARN
         ‼ lint-staged prevented an empty git commit.
         Use the --allow-empty option to continue, or check your task configuration
       "
@@ -979,7 +979,7 @@ describe('lint-staged', () => {
       LOG [SUCCESS] Applying modifications...
       LOG [STARTED] Restoring unstaged changes to partially staged files...
       ERROR [FAILED] Unstaged changes could not be restored due to a merge conflict!
-      ERROR 
+      ERROR
         × lint-staged failed due to a git error."
     `)
 

@@ -38,7 +38,7 @@ LOG {
 exports[`lintStaged should print helpful error message when config file is not found 2`] = `
 "
 ERROR Config could not be found.
-ERROR 
+ERROR
 ERROR Please make sure you have created it correctly.
 See https://github.com/okonet/lint-staged#configuration."
 `;
@@ -48,7 +48,7 @@ exports[`lintStaged should print helpful error message when explicit config file
 ERROR Could not parse lint-staged config.
 
 Error: ENOENT: no such file or directory, open 'fake-config-file.yml'
-ERROR 
+ERROR
 ERROR Please make sure you have created it correctly.
 See https://github.com/okonet/lint-staged#configuration.
 `;
@@ -58,14 +58,14 @@ exports[`lintStaged should throw when invalid config is provided 2`] = `
 ERROR Could not parse lint-staged config.
 
 Error: Configuration should not be empty!
-ERROR 
+ERROR
 ERROR Please make sure you have created it correctly.
 See https://github.com/okonet/lint-staged#configuration."
 `;
 
 exports[`lintStaged should use config object 1`] = `""`;
 
-exports[`lintStaged should use cosmiconfig if no params are passed 1`] = `
+exports[`lintStaged should use lilconfig if no params are passed 1`] = `
 "
 ERROR × Failed to get staged files!"
 `;
@@ -75,7 +75,7 @@ exports[`lintStaged should use use the console if no logger is passed 1`] = `
 ERROR Could not parse lint-staged config.
 
 Error: Configuration should not be empty!
-ERROR 
+ERROR
 ERROR Please make sure you have created it correctly.
 See https://github.com/okonet/lint-staged#configuration."
 `;
