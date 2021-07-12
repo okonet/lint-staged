@@ -756,7 +756,9 @@ describe('lint-staged', () => {
     // Since prettier reverts all changes, the commit should fail
     // use the old syntax with manual `git add` to provide a warning message
     await expect(
-      gitCommit({ config: { '*.js': ['prettier --write', 'git add'] } })
+      gitCommit({
+        config: { '*.js': ['prettier --write', 'git add'], '**/*.js': ['prettier --write'] },
+      })
     ).rejects.toThrowErrorMatchingInlineSnapshot(`"lint-staged failed"`)
 
     expect(console.printHistory()).toMatchInlineSnapshot(`
@@ -767,9 +769,13 @@ describe('lint-staged', () => {
       LOG [SUCCESS] Preparing...
       LOG [STARTED] Running tasks...
       LOG [STARTED] Running tasks for *.js
+      LOG [STARTED] Running tasks for **/*.js
+      LOG [STARTED] prettier --write
       LOG [STARTED] prettier --write
       LOG [SUCCESS] prettier --write
       LOG [STARTED] git add
+      LOG [SUCCESS] prettier --write
+      LOG [SUCCESS] Running tasks for **/*.js
       LOG [SUCCESS] git add
       LOG [SUCCESS] Running tasks for *.js
       LOG [SUCCESS] Running tasks...
